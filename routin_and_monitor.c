@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:49:07 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/25 15:00:34 by obarais          ###   ########.fr       */
+/*   Updated: 2025/02/25 15:44:37 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,22 +15,24 @@
 // check if the philosopher is dead
 int	check_death(t_philosopher *phil)
 {
+	int result;
+
 	pthread_mutex_lock(&phil->data->death_lock);
-	return (phil->data->someone_died);
+	result = phil->data->someone_died;
 	pthread_mutex_unlock(&phil->data->death_lock);
-	return (0);
+	return (result);
 }
 
 
 // ft_usleep function for sleep in microsecond
 void	ft_usleep(t_philosopher *philo, long int duration)
 {
-	int i = 0;
-	long int start_time = duration / 5;
-	while ( i < 5 && !check_death(philo))
+	long int start_time = get_time();
+	while ((get_time() - start_time) < duration)
 	{
-		usleep(start_time * 1000);
-		i++;
+		if (check_death(philo))
+			break;
+		usleep(500);
 	}
 }
 
@@ -49,18 +51,19 @@ void	*philosopher_routine(void *phil)
 	t_philosopher	*philo;
 
 	philo = (t_philosopher *)phil;
-	while (!check_death(philo))
+	while (1)
 	{
-		print_status(philo, "is thinking");
-		
 		if(check_death(philo))
 			return (NULL);
-
+		
+		print_status(philo, "is thinking");
+		
 		take_the_fork(philo);
 		
 		pthread_mutex_lock(&philo->meal_lock);
 		philo->last_meal_time = get_time();
 		pthread_mutex_unlock(&philo->meal_lock);
+		
 		print_status(philo, "is eating");
 		ft_usleep(philo, philo->data->time_to_eat);
 		
@@ -82,25 +85,35 @@ void	*monitor_routine(void *data)
 	int		i;
 
 	philo = (t_data *)data;
-	while (!check_death(philo->philos))
+	while (1)
 	{
+		pthread_mutex_lock(&philo->death_lock);
+		if (philo->someone_died)  // ✅ بمجرد أن يموت أحد الفلاسفة، نخرج مباشرة
+		{
+			pthread_mutex_unlock(&philo->death_lock);
+			return (NULL);
+		}
+		pthread_mutex_unlock(&philo->death_lock);
+
 		i = 0;
 		while (i < philo->num_philos)
 		{
 			pthread_mutex_lock(&philo->philos[i].meal_lock);
-			if (get_time()
-				- philo->philos[i].last_meal_time > philo->time_to_die)
+			if (get_time() - philo->philos[i].last_meal_time > philo->time_to_die)
 			{
 				print_status(&philo->philos[i], "is died");
-				pthread_mutex_lock(&philo->death_lock);
-    			philo->someone_died = 1;
-    			pthread_mutex_unlock(&philo->death_lock);
 				pthread_mutex_unlock(&philo->philos[i].meal_lock);
-				break ;
+
+				pthread_mutex_lock(&philo->death_lock);
+				philo->someone_died = 1;
+				pthread_mutex_unlock(&philo->death_lock);
+				
+				return (NULL);  // ✅ نخرج من `monitor_routine` فورًا عند الموت
 			}
 			pthread_mutex_unlock(&philo->philos[i].meal_lock);
 			i++;
 		}
+		usleep(1000);  // ✅ تقليل استهلاك المعالج
 	}
 	return (NULL);
 }

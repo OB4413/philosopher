@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 17:43:59 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/25 14:19:06 by obarais          ###   ########.fr       */
+/*   Updated: 2025/02/25 15:24:06 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void	*ft_allocated(t_data *data)
 		free(data->forks);
 		return NULL;
 	}
-	return ("good");
+	return ("data");
 }
 
 // initialize data
