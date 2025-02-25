@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/24 11:03:28 by obarais          ###   ########.fr       */
+/*   Updated: 2025/02/25 14:16:50 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int	ft_atoi(const char *str)
 		i++;
 	if (str[i] == '-')
 		return (-1);
-	if (str[i] == '+' || str[i] == '-')
+	if (str[i] == '+')
 		i++;
 	while (str[i] && str[i] >= '0' && str[i] <= '9')
 	{
@@ -41,16 +41,6 @@ int	ft_atoi(const char *str)
 	if (str[i] && !(str[i] >= '0' && str[i] <= '9'))
 		return (-1);
 	return (nbr * sign);
-}
-
-// ft_usleep function for sleep in microsecond
-void	ft_usleep(long int time)
-{
-	int	i;
-
-	i = 0;
-	while (i++ < 1000)
-		usleep(time);
 }
 
 // get_time function for get time in milliseconds
@@ -77,7 +67,7 @@ int	error(int ac, char **av)
 		if (ft_atoi(av[1]) == 1)
 		{
 			printf("%d %s\n", 0, "1 has taken a fork");
-			ft_usleep(ft_atoi(av[2]));
+			usleep(ft_atoi(av[2]) * 1000);
 			printf("%d %s\n", ft_atoi(av[2]), "1 died");
 		}
 		else
@@ -85,88 +75,6 @@ int	error(int ac, char **av)
 		return (1);
 	}
 	return (0);
-}
-
-// print_status function for print status of philosopher
-void	print_status(t_philosopher *philo, char *status)
-{
-	pthread_mutex_lock(&philo->data->write_lock);
-	if (!philo->data->someone_died)
-		printf("%ld %d %s\n", get_time() - philo->data->start_time, philo->id,
-			status);
-	pthread_mutex_unlock(&philo->data->write_lock);
-}
-
-// function for philosopher routine
-void	*philosopher_routine(void *phil)
-{
-	t_philosopher	*philo;
-
-	philo = (t_philosopher *)phil;
-	while (!philo->data->someone_died)
-	{
-		print_status(philo, "is thinking");
-		pthread_mutex_lock(&philo->data->forks[philo->id]);
-		print_status(philo, "has taken a fork");
-		pthread_mutex_lock(&philo->data->forks[(philo->id + 1)
-			% philo->data->num_philos]);
-		print_status(philo, "has taken a fork");
-		pthread_mutex_lock(&philo->meal_lock);
-		philo->last_meal_time = get_time();
-		pthread_mutex_unlock(&philo->meal_lock);
-		print_status(philo, "is eating");
-		ft_usleep(philo->data->time_to_eat);
-		pthread_mutex_unlock(&philo->data->forks[philo->id]);
-		pthread_mutex_unlock(&philo->data->forks[(philo->id + 1)
-			% philo->data->num_philos]);
-		print_status(philo, "is sleeping");
-		ft_usleep(philo->data->time_to_sleep);
-	}
-	return (NULL);
-}
-
-// function for monitor routine
-void	*monitor_routine(void *data)
-{
-	t_data	*philo;
-	int		i;
-
-	philo = (t_data *)data;
-	while (!philo->someone_died)
-	{
-		i = 0;
-		while (i <= philo->num_philos)
-		{
-			pthread_mutex_lock(&philo->philos[i].meal_lock);
-			if (get_time()
-				- philo->philos[i].last_meal_time > philo->time_to_die)
-			{
-				print_status(&philo->philos[i], "died");
-				philo->someone_died = 1;
-				break ;
-			}
-			pthread_mutex_unlock(&philo->philos[i].meal_lock);
-			i++;
-		}
-	}
-	return (NULL);
-}
-
-// function for allocated memory
-void	*ft_allocated(t_data *data)
-{
-	data->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t)
-			* data->num_philos);
-	if (!data->forks)
-		return NULL;
-	data->philos = (t_philosopher *)malloc(sizeof(t_philosopher)
-			* data->num_philos);
-	if (!data->philos)
-	{
-		free(data->forks);
-		return NULL;
-	}
-	return (data);
 }
 
 // the form of av program [number of philo] [time die] [time eat] [time sleep] [number of times each philosopher must eat]
@@ -181,44 +89,11 @@ int	main(int ac, char **av)
 	if (error(ac, av) == 1)
 		return (1);
 	
-	// check if the number of times each philosopher must eat is given
-	if (ac == 6)
-	{
-		data.num_must_eat = ft_atoi(av[5]);
-		if (data.num_must_eat < 0)
-			return (printf("Error: some parameter is bad\n"), 1);
-	}
+	// initialize data
+	if (init_the_data(&data, av, ac) == 1)
+		return (1);
 	
 	// initialize data
-	data.num_philos = ft_atoi(av[1]);
-	data.time_to_die = ft_atoi(av[2]);
-	data.time_to_eat = ft_atoi(av[3]);
-	data.time_to_sleep = ft_atoi(av[4]);
-	data.someone_died = 0;
-	data.start_time = get_time();
-	if (data.num_philos < 0 || data.time_to_die < 0 || data.time_to_eat < 0
-		|| data.time_to_sleep < 0)
-		return (printf("Error: some parameter is bad\n"), 1);
-	
-	// allocate memory for data.philos and data.forks
-	if (ft_allocated(&data) == NULL)
-		return (printf("filed to allocate memory\n"), 1);
-	
-	// initialize mutex
-	pthread_mutex_init(&data.write_lock, NULL);
-	i = 0;
-	while (i < data.num_philos)
-	{
-		pthread_mutex_init(&data.forks[i], NULL);
-		i++;
-	}
-
-	// create the saver of ID threads
-	pthread_t	philo[data.num_philos];
-	pthread_t	monitor;
-
-	// initialize data
-	i = 0;
 	while (i < data.num_philos)
 	{
 		data.philos[i].id = i;
@@ -228,6 +103,11 @@ int	main(int ac, char **av)
 		i++;
 	}
 	pthread_mutex_init(&data.write_lock, NULL);
+	pthread_mutex_init(&data.death_lock, NULL);
+	
+	// create the saver of ID threads
+	pthread_t	philo[data.num_philos];
+	pthread_t	monitor;
 
 	// create threads
 	i = 0;
@@ -252,9 +132,13 @@ int	main(int ac, char **av)
 	while (i < data.num_philos)
 	{
 		pthread_mutex_destroy(&data.philos[i].meal_lock);
+		pthread_mutex_destroy(&data.forks[i]);
 		i++;
 	}
 	pthread_mutex_destroy(&data.write_lock);
+	pthread_mutex_destroy(&data.death_lock);
+	free(data.forks);
+	free(data.philos);
 	
 	return (0);
 }
