@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:49:07 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/25 15:44:37 by obarais          ###   ########.fr       */
+/*   Updated: 2025/02/27 09:00:13 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ void	print_status(t_philosopher *philo, char *status)
 	printf("%ld %d %s\n", get_time() - philo->data->start_time, philo->id + 1, status);
 	pthread_mutex_unlock(&philo->data->write_lock);
 }
+
 // function for philosopher routine
 void	*philosopher_routine(void *phil)
 {
@@ -58,7 +59,8 @@ void	*philosopher_routine(void *phil)
 		
 		print_status(philo, "is thinking");
 		
-		take_the_fork(philo);
+		if (take_the_fork(philo) == 1)
+			return (NULL);
 		
 		pthread_mutex_lock(&philo->meal_lock);
 		philo->last_meal_time = get_time();
@@ -67,7 +69,8 @@ void	*philosopher_routine(void *phil)
 		print_status(philo, "is eating");
 		ft_usleep(philo, philo->data->time_to_eat);
 		
-		put_the_fork(philo);
+		if (put_the_fork(philo) == 1)
+			return (NULL);
 
 		if(check_death(philo))
 			return (NULL);
@@ -87,33 +90,41 @@ void	*monitor_routine(void *data)
 	philo = (t_data *)data;
 	while (1)
 	{
-		pthread_mutex_lock(&philo->death_lock);
-		if (philo->someone_died)  // ✅ بمجرد أن يموت أحد الفلاسفة، نخرج مباشرة
+		if (pthread_mutex_lock(&philo->death_lock) != 0)
+			return (printf("pthread_mutex_lock failed\n"), NULL);
+		if (philo->someone_died)
 		{
-			pthread_mutex_unlock(&philo->death_lock);
+			if (pthread_mutex_unlock(&philo->death_lock) != 0)
+				return (printf("pthread_mutex_unlock failed\n"), NULL);
 			return (NULL);
 		}
-		pthread_mutex_unlock(&philo->death_lock);
+		if (pthread_mutex_unlock(&philo->death_lock) != 0)
+			return (printf("pthread_mutex_unlock failed\n"), NULL);
 
 		i = 0;
 		while (i < philo->num_philos)
 		{
-			pthread_mutex_lock(&philo->philos[i].meal_lock);
+			if (pthread_mutex_lock(&philo->philos[i].meal_lock) != 0)
+				return (printf("pthread_mutex_lock failed\n"), NULL);
 			if (get_time() - philo->philos[i].last_meal_time > philo->time_to_die)
 			{
 				print_status(&philo->philos[i], "is died");
-				pthread_mutex_unlock(&philo->philos[i].meal_lock);
+				if (pthread_mutex_unlock(&philo->philos[i].meal_lock) != 0)
+					return (printf("pthread_mutex_unlock failed\n"), NULL);
 
-				pthread_mutex_lock(&philo->death_lock);
+				if (pthread_mutex_lock(&philo->death_lock) != 0)
+					return (printf("pthread_mutex_lock failed\n"), NULL);
 				philo->someone_died = 1;
-				pthread_mutex_unlock(&philo->death_lock);
+				if (pthread_mutex_unlock(&philo->death_lock) != 0)
+					return (printf("pthread_mutex_unlock failed\n"), NULL);
 				
-				return (NULL);  // ✅ نخرج من `monitor_routine` فورًا عند الموت
+				return (NULL);
 			}
-			pthread_mutex_unlock(&philo->philos[i].meal_lock);
+			if (pthread_mutex_unlock(&philo->philos[i].meal_lock) != 0)
+				return (printf("pthread_mutex_unlock failed\n"), NULL);
 			i++;
 		}
-		usleep(1000);  // ✅ تقليل استهلاك المعالج
+		usleep(1000);
 	}
 	return (NULL);
 }

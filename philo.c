@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/25 15:10:57 by obarais          ###   ########.fr       */
+/*   Updated: 2025/02/26 14:47:19 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	ft_atoi(const char *str)
 	while (str[i] == ' ' || str[i] == '\t' || str[i] == '\n' || str[i] == '\v'
 		|| str[i] == '\f' || str[i] == '\r')
 		i++;
-	if (str[i] == '-')
+	if (str[i] == '-' || str[0] == '\0')
 		return (-1);
 	if (str[i] == '+')
 		i++;
@@ -49,7 +49,8 @@ long int	get_time(void)
 	struct timeval	time;
 	long int		res;
 
-	gettimeofday(&time, NULL);
+	if (gettimeofday(&time, NULL) == -1)
+		return (printf("gettimeofday failed\n"), -1);
 	res = (time.tv_sec * 1000) + (time.tv_usec / 1000);
 	return (res);
 }
@@ -67,11 +68,12 @@ int	error(int ac, char **av)
 		if (ft_atoi(av[1]) == 1)
 		{
 			printf("%d %s\n", 0, "1 has taken a fork");
-			usleep(ft_atoi(av[2]) * 1000);
+			if (usleep(ft_atoi(av[2]) * 1000) == -1)
+				return (printf("usleep failed\n"), 1);
 			printf("%d %s\n", ft_atoi(av[2]), "1 died");
 		}
 		else
-			return (printf("Error: Number of philosophers must be > 0\n"));
+			return (printf("Error: Number of philosophers must be > 0\n"), 1);
 		return (1);
 	}
 	return (0);
@@ -98,12 +100,13 @@ int	main(int ac, char **av)
 	{
 		data.philos[i].id = i;
 		data.philos[i].last_meal_time = data.start_time;
-		pthread_mutex_init(&data.philos[i].meal_lock, NULL);
+		if (pthread_mutex_init(&data.philos[i].meal_lock, NULL) != 0)
+			return (printf("pthread mutex init failed\n"), 1);
 		data.philos[i].data = &data;
 		i++;
 	}
-	pthread_mutex_init(&data.write_lock, NULL);
-	pthread_mutex_init(&data.death_lock, NULL);
+	if (pthread_mutex_init(&data.write_lock, NULL) != 0 || pthread_mutex_init(&data.death_lock, NULL) != 0)
+		return (printf("pthread mutex init failed\n"), 1);
 	
 	// create the saver of ID threads
 	pthread_t	philo[data.num_philos];
@@ -113,30 +116,34 @@ int	main(int ac, char **av)
 	i = 0;
 	while (i < data.num_philos)
 	{
-		pthread_create(&philo[i], NULL, philosopher_routine, &data.philos[i]);
+		if (pthread_create(&philo[i], NULL, philosopher_routine, &data.philos[i]) != 0)
+			return (printf("pthread_creat failed\n"), 1);
 		i++;
 	}
-	pthread_create(&monitor, NULL, monitor_routine, &data);
+	if (pthread_create(&monitor, NULL, monitor_routine, &data) != 0)
+		return (printf("pthread_creat failed\n"), 1);
 
 	// join threads
 	i = 0;
 	while (i < data.num_philos)
 	{
-		pthread_join(philo[i], NULL);
+		if (pthread_join(philo[i], NULL) != 0)
+			return (printf("pthread_join failed\n"), 1);
 		i++;
 	}
-	pthread_join(monitor, NULL);
+	if (pthread_join(monitor, NULL) != 0)
+		return (printf("pthread_join failed\n"), 1);
 
 	// free memory
 	i = 0;
 	while (i < data.num_philos)
 	{
-		pthread_mutex_destroy(&data.philos[i].meal_lock);
-		pthread_mutex_destroy(&data.forks[i]);
+		if (pthread_mutex_destroy(&data.philos[i].meal_lock) != 0 || pthread_mutex_destroy(&data.forks[i]) != 0)
+			return (printf("pthread_mutex_destroy failed\n"), 1);
 		i++;
 	}
-	pthread_mutex_destroy(&data.write_lock);
-	pthread_mutex_destroy(&data.death_lock);
+	if (pthread_mutex_destroy(&data.write_lock) != 0 || pthread_mutex_destroy(&data.death_lock) != 0)
+		return (printf("pthread_mutex_destroy failed\n"), 1);
 	free(data.forks);
 	free(data.philos);
 	

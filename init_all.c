@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 17:43:59 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/25 15:24:06 by obarais          ###   ########.fr       */
+/*   Updated: 2025/02/26 14:50:16 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,11 @@ int    init_the_data(t_data *data, char **av, int ac)
 	data->num_must_eat = INT_MAX;
 	data->someone_died = 0;
 	data->start_time = get_time();
-	if (data->num_philos < 0 || data->num_philos > 200 || data->time_to_die < 0
-		|| data->time_to_eat < 0 || data->time_to_sleep < 0)
+	if (data->num_philos < 0 || data->num_philos > 200 || data->time_to_die <= 0
+		|| data->time_to_eat <= 0 || data->time_to_sleep <= 0)
 		return (printf("Error: some parameter is bad\n"), 1);
+	if (data->start_time == -1)
+		return (1);
     
     // check if the number of times each philosopher must eat is given
 	if (ac == 6)
@@ -63,7 +65,8 @@ int    init_the_data(t_data *data, char **av, int ac)
 	// initialize mutex
 	while (i < data->num_philos)
 	{
-		pthread_mutex_init(&data->forks[i], NULL);
+		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
+			return (printf("pthread mutex init failed\n"), 1);
 		i++;
 	}
     return (0);

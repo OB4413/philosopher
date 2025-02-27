@@ -6,13 +6,13 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 09:20:44 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/25 15:54:12 by obarais          ###   ########.fr       */
+/*   Updated: 2025/02/26 13:41:50 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	take_the_fork(t_philosopher *philo)
+int	take_the_fork(t_philosopher *philo)
 {
 	int	right_fork;
 	int	left_fork;
@@ -23,31 +23,30 @@ void	take_the_fork(t_philosopher *philo)
 	if (philo->id % 2 == 0)
 	{
 		if (check_death(philo))
-		{
-			pthread_mutex_unlock(&philo->data->forks[left_fork]);
-			return ;
-		}
-		pthread_mutex_lock(&philo->data->forks[left_fork]);
+			return 1;
+		if (pthread_mutex_lock(&philo->data->forks[left_fork]) != 0)
+			return (printf("pthread_mutex_lock failed\n"), 1);
 		print_status(philo, "has taken a fork");
-		pthread_mutex_lock(&philo->data->forks[right_fork]);
+		if (pthread_mutex_lock(&philo->data->forks[right_fork]) != 0)
+			return (printf("pthread_mutex_lock failed\n"), 1);
 		print_status(philo, "has taken a fork");
 	}
 	else
 	{
 		if (check_death(philo))
-		{
-			pthread_mutex_unlock(&philo->data->forks[right_fork]);
-			return ;
-		}
+			return 1;
 		usleep(2000);
-		pthread_mutex_lock(&philo->data->forks[right_fork]);
+		if (pthread_mutex_lock(&philo->data->forks[right_fork]) != 0)
+			return (printf("pthread_mutex_lock failed\n"), 1);
 		print_status(philo, "has taken a fork");
-		pthread_mutex_lock(&philo->data->forks[left_fork]);
+		if (pthread_mutex_lock(&philo->data->forks[left_fork]) != 0)
+			return (printf("pthread_mutex_lock failed\n"), 1);
 		print_status(philo, "has taken a fork");
 	}
+	return (0);
 }
 
-void	put_the_fork(t_philosopher *philo)
+int	put_the_fork(t_philosopher *philo)
 {
 	int right_fork;
 	int left_fork;
@@ -58,13 +57,18 @@ void	put_the_fork(t_philosopher *philo)
 
 	if (philo->id % 2 == 0)
 	{
-		pthread_mutex_unlock(&philo->data->forks[left_fork]);
-		pthread_mutex_unlock(&philo->data->forks[right_fork]);
+		if (pthread_mutex_unlock(&philo->data->forks[left_fork]) != 0)
+			return (printf("pthread_mutex_unlock failed\n"), 1);
+		if (pthread_mutex_unlock(&philo->data->forks[right_fork]) != 0)
+			return (printf("pthread_mutex_unlock failed\n"));
 	}
 	else
 	{
 		usleep(100);
-		pthread_mutex_unlock(&philo->data->forks[right_fork]);
-		pthread_mutex_unlock(&philo->data->forks[left_fork]);
+		if (pthread_mutex_unlock(&philo->data->forks[right_fork]) != 0)
+			return (printf("pthread_mutex_unlock failed\n"), 1);
+		if (pthread_mutex_unlock(&philo->data->forks[left_fork]) != 0)
+			return (printf("pthread_mutex_unlock failed\n"), 1);
 	}
+	return (0);
 }

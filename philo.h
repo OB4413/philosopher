@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:52 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/25 11:42:57 by obarais          ###   ########.fr       */
+/*   Updated: 2025/02/26 13:38:26 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,8 @@ long int			get_time(void);
 void				ft_usleep(t_philosopher *philo, long int duration);
 int					init_the_data(t_data *data, char **av, int ac);
 int					ft_atoi(const char *str);
-void				take_the_fork(t_philosopher *philo);
-void				put_the_fork(t_philosopher *philo);
+int					take_the_fork(t_philosopher *philo);
+int					put_the_fork(t_philosopher *philo);
 int					check_death(t_philosopher *phil);
 
 #endif
