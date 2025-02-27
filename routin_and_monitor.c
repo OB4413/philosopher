@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:49:07 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/27 09:00:13 by obarais          ###   ########.fr       */
+/*   Updated: 2025/02/27 10:59:43 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,13 +61,16 @@ void	*philosopher_routine(void *phil)
 		
 		if (take_the_fork(philo) == 1)
 			return (NULL);
+		if (philo->num_eat != philo->data->num_must_eat)
+		{
+			pthread_mutex_lock(&philo->meal_lock);
+			philo->last_meal_time = get_time();
+			pthread_mutex_unlock(&philo->meal_lock);
 		
-		pthread_mutex_lock(&philo->meal_lock);
-		philo->last_meal_time = get_time();
-		pthread_mutex_unlock(&philo->meal_lock);
-		
-		print_status(philo, "is eating");
-		ft_usleep(philo, philo->data->time_to_eat);
+			print_status(philo, "is eating");
+			philo->num_eat++;
+			ft_usleep(philo, philo->data->time_to_eat);
+		}
 		
 		if (put_the_fork(philo) == 1)
 			return (NULL);

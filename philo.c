@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/26 14:47:19 by obarais          ###   ########.fr       */
+/*   Updated: 2025/02/27 11:00:30 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ int	main(int ac, char **av)
 	while (i < data.num_philos)
 	{
 		data.philos[i].id = i;
+		data.philos[i].num_eat = 0;
 		data.philos[i].last_meal_time = data.start_time;
 		if (pthread_mutex_init(&data.philos[i].meal_lock, NULL) != 0)
 			return (printf("pthread mutex init failed\n"), 1);
