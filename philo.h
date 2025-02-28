@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:52 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/27 10:55:49 by obarais          ###   ########.fr       */
+/*   Updated: 2025/02/27 12:44:25 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 typedef struct s_philosopher
 {
 	int				id;
-	int 			num_eat;
+	int				num_eat;
 	long int		last_meal_time;
 	pthread_mutex_t	meal_lock;
 	struct s_data	*data;
@@ -42,6 +42,8 @@ typedef struct s_data
 	int				time_to_sleep;
 	int				num_must_eat;
 	int				someone_died;
+	pthread_t		*philo;
+	pthread_t		monitor;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	write_lock;
 	pthread_mutex_t	death_lock;
@@ -58,5 +60,8 @@ int					ft_atoi(const char *str);
 int					take_the_fork(t_philosopher *philo);
 int					put_the_fork(t_philosopher *philo);
 int					check_death(t_philosopher *phil);
+int					help_main(t_data *data);
+int					help_routine(t_philosopher *philo);
+int					help_monitor(t_data *philo);
 
 #endif
