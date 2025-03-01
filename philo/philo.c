@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/01 15:51:53 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/01 16:43:18 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,6 @@ int	main(int ac, char **av)
 	t_data	data;
 
 	i = 0;
-	printf("sleep: %d\n", ft_atoi(av[4]));
 	if (error(ac, av) == 1)
 		return (1);
 	if (init_the_data(&data, av, ac) == 1)
