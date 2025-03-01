@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 09:20:44 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/27 14:07:28 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/01 14:11:11 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ int	take_the_fork(t_philosopher *philo)
 	left_fork = (philo->id + philo->data->num_philos - 1)
 		% philo->data->num_philos;
 	right_fork = philo->id % philo->data->num_philos;
-	if (philo->id % 2 == 0)
+	if ((philo->id + 1) % 2 == 0)
 	{
 		if (check_death(philo))
 			return (1);
@@ -98,7 +98,7 @@ int	put_the_fork(t_philosopher *philo)
 	left_fork = (philo->id + philo->data->num_philos - 1)
 		% philo->data->num_philos;
 	right_fork = philo->id % philo->data->num_philos;
-	if (philo->id % 2 == 0)
+	if ((philo->id + 1) % 2 == 0)
 	{
 		if (pthread_mutex_unlock(&philo->data->forks[left_fork]) != 0)
 			return (printf("pthread_mutex_unlock failed\n"), 1);
