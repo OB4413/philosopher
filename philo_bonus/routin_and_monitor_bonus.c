@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   routin_and_monitor.c                               :+:      :+:    :+:   */
+/*   routin_and_monitor_bonus.c                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:49:07 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/02 12:00:00 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/02 15:46:45 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
 // check if the philosopher is dead
 int	check_death(t_philosopher *phil)

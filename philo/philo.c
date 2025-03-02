@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/02 07:04:20 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/02 15:39:21 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,22 +55,21 @@ long int	get_time(void)
 // for < 2 philosophers and arguments
 int	error(int ac, char **av, t_data *data)
 {
+	data->num_philos = ft_atoi(av[1]);
+	data->time_to_die = ft_atoi(av[2]);
+	data->time_to_eat = ft_atoi(av[3]);
+	data->time_to_sleep = ft_atoi(av[4]);
+	if (data->num_philos > 200 || data->num_philos <= 0
+		|| data->time_to_die <= 0 || data->time_to_eat <= 0
+		|| data->time_to_sleep <= 0)
+		return (printf("Error: some parameter is bad\n"), 1);
 	if (ac < 5 || ac > 6)
-	{
-		printf("./philo num_philos time_die time_eat time_sleep [must_eat]\n");
-		return (1);
-	}
+		return (printf("./philo num_philos t_die t_eat t_sleep [must_eat]\n"),
+			1);
 	if (ft_atoi(av[1]) < 2)
 	{
 		if (ft_atoi(av[1]) == 1)
 		{
-			data->num_philos = ft_atoi(av[1]);
-			data->time_to_die = ft_atoi(av[2]);
-			data->time_to_eat = ft_atoi(av[3]);
-			data->time_to_sleep = ft_atoi(av[4]);
-			if (data->num_philos > 200 || data->time_to_die <= 0
-				|| data->time_to_eat <= 0 || data->time_to_sleep <= 0)
-				return (printf("Error: some parameter is bad\n"), 1);
 			printf("%d %s\n", 0, "1 has taken a fork");
 			if (usleep(ft_atoi(av[2]) * 1000) == -1)
 				return (printf("usleep failed\n"), 1);
