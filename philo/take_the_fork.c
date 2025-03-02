@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 09:20:44 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/01 14:11:11 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/02 10:32:41 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ int	help_routine(t_philosopher *philo)
 		return (1);
 	if (check_death(philo))
 		return (1);
+	print_status(philo, "is sleeping");
+	ft_usleep(philo, philo->data->time_to_sleep);
 	return (0);
 }
 

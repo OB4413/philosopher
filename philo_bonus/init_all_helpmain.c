@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 17:43:59 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/27 17:18:02 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/02 13:51:43 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,24 +19,23 @@ int	help_main(t_data *data)
 	i = 0;
 	while (i < data->num_philos)
 	{
-		if (pthread_join(data->philo[i], NULL) != 0)
-			return (printf("pthread_join failed\n"), 1);
+		waitpid(&data->philos[i]);
 		i++;
 	}
-	if (pthread_join(data->monitor, NULL) != 0)
-		return (printf("pthread_join failed\n"), 1);
+	wait_pid(&data->pid_monitor);
 	i = 0;
 	while (i < data->num_philos)
 	{
-		if (pthread_mutex_destroy(&data->philos[i].meal_lock) != 0
-			|| pthread_mutex_destroy(&data->forks[i]) != 0)
-			return (printf("pthread_mutex_destroy failed\n"), 1);
+		sem_close(data->philos[i].meal_lock);
+		sem_unlink("/meal_lock");
 		i++;
 	}
-	if (pthread_mutex_destroy(&data->write_lock) != 0
-		|| pthread_mutex_destroy(&data->death_lock) != 0)
-		return (printf("pthread_mutex_destroy failed\n"), 1);
-	free(data->forks);
+	sem_close(data->write_lock);
+	sem_close(data->death_lock);
+	sem_close(data->forks);
+	sem_unlink("/forks");
+	sem_unlink("/write_lock");
+	sem_unlink("/death_lock");
 	free(data->philos);
 	return (0);
 }
@@ -44,8 +43,7 @@ int	help_main(t_data *data)
 // function for allocated memory
 void	*ft_allocated(t_data *data)
 {
-	data->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t)
-			* data->num_philos);
+	data->forks = sem_open("/forks", O_CREAT, 0644, data->num_philos);
 	if (!data->forks)
 		return (NULL);
 	data->philos = (t_philosopher *)malloc(sizeof(t_philosopher)
@@ -59,35 +57,9 @@ void	*ft_allocated(t_data *data)
 	return ("data");
 }
 
-int	help_init(t_data *data)
-{
-	int	i;
-
-	i = 0;
-	if (ft_allocated(data) == NULL)
-		return (printf("filed to allocate memory\n"), 1);
-	while (i < data->num_philos)
-	{
-		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
-			return (printf("pthread mutex init failed\n"), 1);
-		i++;
-	}
-	data->philo = malloc(sizeof(pthread_t) * data->num_philos);
-	if (!data->philo)
-	{
-		free(data->forks);
-		free(data->philos);
-		return (printf("failed to allocate memory\n"), 1);
-	}
-	return (0);
-}
-
 // initialize data
 int	init_the_data(t_data *data, char **av, int ac)
 {
-	int	i;
-
-	i = 0;
 	data->num_philos = ft_atoi(av[1]);
 	data->time_to_die = ft_atoi(av[2]);
 	data->time_to_eat = ft_atoi(av[3]);
@@ -107,7 +79,7 @@ int	init_the_data(t_data *data, char **av, int ac)
 		if (data->num_must_eat < 0)
 			return (printf("Error: some parameter is bad\n"), 1);
 	}
-	if (help_init(data) == 1)
+	if (ft_allocated(data) == NULL)
 		return (1);
 	return (0);
 }

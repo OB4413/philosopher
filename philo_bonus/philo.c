@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/02/28 08:38:07 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/02 13:49:20 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,10 @@
 // ft_atoi function for parameter to integer
 int	ft_atoi(const char *str)
 {
-	int	i;
-	int	sign;
-	int	nbr;
+	int		i;
+	long	nbr;
 
 	i = 0;
-	sign = 1;
 	nbr = 0;
 	while (str[i] == ' ' || str[i] == '\t')
 		i++;
@@ -30,7 +28,7 @@ int	ft_atoi(const char *str)
 		i++;
 	while (str[i] && str[i] >= '0' && str[i] <= '9')
 	{
-		if ((nbr * sign) > INT_MAX)
+		if (nbr > INT_MAX)
 			return (-1);
 		nbr = (nbr * 10) + (str[i++] - '0');
 	}
@@ -39,7 +37,7 @@ int	ft_atoi(const char *str)
 		i++;
 	if (str[i] && !(str[i] >= '0' && str[i] <= '9'))
 		return (-1);
-	return (nbr * sign);
+	return (nbr);
 }
 
 // get_time function for get time in milliseconds
@@ -55,7 +53,7 @@ long int	get_time(void)
 }
 
 // for < 2 philosophers and arguments
-int	error(int ac, char **av)
+int	error(int ac, char **av, t_data *data)
 {
 	if (ac < 5 || ac > 6)
 	{
@@ -66,14 +64,20 @@ int	error(int ac, char **av)
 	{
 		if (ft_atoi(av[1]) == 1)
 		{
+			data->num_philos = ft_atoi(av[1]);
+			data->time_to_die = ft_atoi(av[2]);
+			data->time_to_eat = ft_atoi(av[3]);
+			data->time_to_sleep = ft_atoi(av[4]);
+			if (data->num_philos > 200 || data->time_to_die <= 0
+				|| data->time_to_eat <= 0 || data->time_to_sleep <= 0)
+				return (printf("Error: some parameter is bad\n"), 1);
 			printf("%d %s\n", 0, "1 has taken a fork");
 			if (usleep(ft_atoi(av[2]) * 1000) == -1)
 				return (printf("usleep failed\n"), 1);
-			printf("%d %s\n", ft_atoi(av[2]), "1 died");
+			return (printf("%d %s\n", ft_atoi(av[2]), "1 died"), 1);
 		}
 		else
 			return (printf("Error: Number of philosophers must be > 0\n"), 1);
-		return (1);
 	}
 	return (0);
 }
@@ -88,12 +92,24 @@ int	init_philo(t_data *data)
 		data->philos[i].id = i;
 		data->philos[i].num_eat = 0;
 		data->philos[i].last_meal_time = data->start_time;
-		if (pthread_mutex_init(&data->philos[i].meal_lock, NULL) != 0)
-			return (printf("pthread mutex init failed\n"), 1);
 		data->philos[i].data = data;
 		i++;
 	}
 	return (0);
+}
+
+void	kill_processes(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while (i < data->num_philos)
+	{
+		if (data->philos[i].pid > 0)
+			kill(data->philos[i].pid, SIGKILL);
+		i++;
+	}
+	kill(data->pid_monitor, SIGKILL);
 }
 
 // av ./program [number of philo] [time die] [time eat] [time sleep] [must eat]
@@ -103,24 +119,29 @@ int	main(int ac, char **av)
 	t_data	data;
 
 	i = 0;
-	if (error(ac, av) == 1)
+	if (error(ac, av, &data) == 1)
 		return (1);
 	if (init_the_data(&data, av, ac) == 1)
 		return (1);
 	if (init_philo(&data) == 1)
 		return (1);
-	if (pthread_mutex_init(&data.write_lock, NULL) != 0
-		|| pthread_mutex_init(&data.death_lock, NULL) != 0)
-		return (printf("pthread mutex init failed\n"), 1);
 	while (i < data.num_philos)
 	{
-		if (pthread_create(&data.philo[i], NULL, philosopher_routine,
-				&data.philos[i]) != 0)
-			return (printf("pthread_creat failed\n"), 1);
+		data.philos[i].pid = fork();
+		if (data.philos[i].pid == 0)
+			philosopher_routine(&data.philos[i]);
+		else if (data.philos[i].pid < 0)
+		{
+			kill_processes(&data);
+			return (printf("fork failed\n"), 1);
+		}
 		i++;
 	}
-	if (pthread_create(&data.monitor, NULL, monitor_routine, &data) != 0)
-		return (printf("pthread_creat failed\n"), 1);
+	data.pid_monitor = fork();
+	if (data.pid_monitor == 0)
+		monitor_routine(&data);
+	else if (data.pid_monitor < 0)
+		return (printf("fork failed\n"), 1);
 	if (help_main(&data) == 1)
 		return (1);
 	return (0);
