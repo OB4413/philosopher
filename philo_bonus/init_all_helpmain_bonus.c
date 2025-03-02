@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 17:43:59 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/02 15:47:17 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/02 17:47:47 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,10 @@ int	help_main(t_data *data)
 	i = 0;
 	while (i < data->num_philos)
 	{
-		waitpid(&data->philos[i]);
+		waitpid(data->philos[i].pid, NULL, 0);
 		i++;
 	}
-	wait_pid(&data->pid_monitor);
+	waitpid(data->pid_monitor, NULL, 0);
 	i = 0;
 	while (i < data->num_philos)
 	{
