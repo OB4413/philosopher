@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 09:20:44 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/04 14:24:39 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 18:04:36 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,12 @@ int	help_monitor(t_data *philo)
 	i = 0;
 	while (i < philo->num_philos)
 	{
-		if (pthread_mutex_lock(&philo->philos[i].meal_lock) != 0)
+		if (pthread_mutex_lock(&philo->meal_lock) != 0)
 			return (printf("pthread_mutex_lock failed\n"), 1);
 		if (get_time() - philo->philos[i].last_meal_time > philo->time_to_die)
 		{
 			print_status(&philo->philos[i], "is died");
-			if (pthread_mutex_unlock(&philo->philos[i].meal_lock) != 0)
+			if (pthread_mutex_unlock(&philo->meal_lock) != 0)
 				return (printf("pthread_mutex_unlock failed\n"), 1);
 			if (pthread_mutex_lock(&philo->death_lock) != 0)
 				return (printf("pthread_mutex_lock failed\n"), 1);
@@ -44,7 +44,7 @@ int	help_monitor(t_data *philo)
 				return (printf("pthread_mutex_unlock failed\n"), 1);
 			return (1);
 		}
-		if (pthread_mutex_unlock(&philo->philos[i].meal_lock) != 0)
+		if (pthread_mutex_unlock(&philo->meal_lock) != 0)
 			return (printf("pthread_mutex_unlock failed\n"), 1);
 		i++;
 	}

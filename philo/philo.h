@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:52 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/02 17:51:30 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 18:00:10 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ typedef struct s_philosopher
 	int				id;
 	int				num_eat;
 	long int		last_meal_time;
-	pthread_mutex_t	meal_lock;
 	struct s_data	*data;
 }					t_philosopher;
 
@@ -46,6 +45,7 @@ typedef struct s_data
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	write_lock;
 	pthread_mutex_t	death_lock;
+	pthread_mutex_t	meal_lock;
 	t_philosopher	*philos;
 }					t_data;
 

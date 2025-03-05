@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/04 14:27:42 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 18:01:17 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,8 +91,6 @@ int	init_philo(t_data *data)
 		data->philos[i].id = i;
 		data->philos[i].num_eat = 0;
 		data->philos[i].last_meal_time = data->start_time;
-		if (pthread_mutex_init(&data->philos[i].meal_lock, NULL) != 0)
-			return (printf("pthread mutex init failed\n"), 1);
 		data->philos[i].data = data;
 		i++;
 	}

@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 17:43:59 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/01 15:53:19 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 18:05:36 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,13 @@ int	help_main(t_data *data)
 	i = 0;
 	while (i < data->num_philos)
 	{
-		if (pthread_mutex_destroy(&data->philos[i].meal_lock) != 0
-			|| pthread_mutex_destroy(&data->forks[i]) != 0)
+		if (pthread_mutex_destroy(&data->forks[i]) != 0)
 			return (printf("pthread_mutex_destroy failed\n"), 1);
 		i++;
 	}
 	if (pthread_mutex_destroy(&data->write_lock) != 0
-		|| pthread_mutex_destroy(&data->death_lock) != 0)
+		|| pthread_mutex_destroy(&data->death_lock) != 0
+		|| pthread_mutex_destroy(&data->meal_lock) != 0)
 		return (printf("pthread_mutex_destroy failed\n"), 1);
 	free(data->forks);
 	free(data->philos);
@@ -72,6 +72,8 @@ int	help_init(t_data *data)
 			return (printf("pthread mutex init failed\n"), 1);
 		i++;
 	}
+	if (pthread_mutex_init(&data->meal_lock, NULL) != 0)
+		return (printf("pthread mutex init failed\n"), 1);
 	data->philo = malloc(sizeof(pthread_t) * data->num_philos);
 	if (!data->philo)
 	{
