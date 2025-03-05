@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/02 15:39:21 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/04 14:27:42 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ int	error(int ac, char **av, t_data *data)
 	{
 		if (ft_atoi(av[1]) == 1)
 		{
-			printf("%d %s\n", 0, "1 has taken a fork");
+			printf("%d %s\n", 0, "is thinking");
 			if (usleep(ft_atoi(av[2]) * 1000) == -1)
 				return (printf("usleep failed\n"), 1);
 			return (printf("%ld %s\n", ft_atoi(av[2]), "1 died"), 1);

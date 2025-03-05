@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:49:07 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/02 10:32:28 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/04 17:46:15 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	ft_usleep(t_philosopher *philo, long int duration)
 	{
 		if (check_death(philo))
 			break ;
-		usleep(500);
+		usleep(50);
 	}
 }
 
@@ -59,10 +59,10 @@ void	*philosopher_routine(void *phil)
 		if (check_death(philo))
 			return (NULL);
 		print_status(philo, "is thinking");
-		if (take_the_fork(philo) == 1)
-			return (NULL);
 		if (philo->num_eat != philo->data->num_must_eat)
 		{
+			if (take_the_fork(philo) == 1)
+				return (NULL);
 			if (pthread_mutex_lock(&philo->meal_lock) != 0)
 				return (printf("pthread_mutex_lock failed\n"), NULL);
 			philo->last_meal_time = get_time();
@@ -98,7 +98,7 @@ void	*monitor_routine(void *data)
 			return (printf("pthread_mutex_unlock failed\n"), NULL);
 		if (help_monitor(philo) == 1)
 			return (NULL);
-		usleep(1000);
+		usleep(100);
 	}
 	return (NULL);
 }

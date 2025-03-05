@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/05 08:18:44 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 09:52:03 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,7 @@ int	main(int ac, char **av)
 		else if (data.philos[i].pid < 0)
 		{
 			kill_processes(&data);
+			clean_all(&data);
 			return (printf("fork failed\n"), 1);
 		}
 		i++;

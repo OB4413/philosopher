@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:49:07 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/04 17:52:14 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 11:08:09 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,12 @@ void	ft_usleep(t_philosopher *philo,long int duration)
 		{
 			sem_post(philo->data->check_dead);
 			print_status(philo, "is died");
-			exit(1);
+			kill_processes(philo->data);
+			clean_all(philo->data);
+			exit(0);
 		}
 		sem_post(philo->data->check_dead);
-		usleep(500);
+		usleep(50);
 	}
 }
 
@@ -39,14 +41,6 @@ void	print_status(t_philosopher *philo, char *status)
 	printf("%ld %d %s\n", get_time() - philo->data->start_time, philo->id + 1,
 	status);
 	sem_post(philo->data->write_lock);
-	sem_wait(philo->data->check_dead);
-	if (get_time() - philo->last_meal_time > philo->data->time_to_die)
-	{
-		sem_post(philo->data->check_dead);
-		print_status(philo, "is died");
-		exit(1);
-	}
-	sem_post(philo->data->check_dead);
 }
 
 // function for philosopher routine
@@ -57,6 +51,8 @@ void	*philosopher_routine(void *phil)
 	philo = (t_philosopher *)phil;
 	while (1)
 	{
+		if (get_time() - philo->last_meal_time > philo->data->time_to_die)
+			break;
 		print_status(philo, "is thinking");
 		if (philo->num_eat != philo->data->num_must_eat)
 		{
@@ -70,17 +66,19 @@ void	*philosopher_routine(void *phil)
 			ft_usleep(philo, philo->data->time_to_eat);
 		}
 		print_status(philo, "is sleeping");
-		ft_usleep(philo, philo->data->time_to_sleep);
 		sem_wait(philo->data->check_dead);
 		if (get_time() - philo->last_meal_time > philo->data->time_to_die)
-		{
-			sem_post(philo->data->check_dead);
-			print_status(philo, "is died");
-			exit(1);
-		}
+			break;
 		sem_post(philo->data->check_dead);
-		put_the_fork(philo);
+		ft_usleep(philo, philo->data->time_to_sleep);
+		if (philo->num_eat != philo->data->num_must_eat)
+			put_the_fork(philo);
 		usleep(200);
 	}
+	sem_post(philo->data->check_dead);
+	print_status(philo, "is died");
+	kill_processes(philo->data);
+	clean_all(philo->data);
+	exit(0);
 	return (NULL);
 }

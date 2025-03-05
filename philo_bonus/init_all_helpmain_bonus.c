@@ -6,11 +6,31 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 17:43:59 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/05 08:29:08 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 10:46:45 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
+
+void	clean_all(t_data *data)
+{
+	int i;
+
+	sem_close(data->write_lock);
+	sem_close(data->forks);
+	sem_close(data->check_dead);
+	i = 0;
+	while (i < data->num_philos)
+	{
+		sem_close(data->philos[i].meal_lock);
+		sem_unlink("/meal_lock");
+		i++;
+	}
+	sem_unlink("/check_dead");
+	sem_unlink("/forks");
+	sem_unlink("/write_lock");
+	free(data->philos);
+}
 
 int	help_main(t_data *data)
 {
@@ -31,20 +51,7 @@ int	help_main(t_data *data)
 	while (wait(NULL) > 0)
 		;
 	kill_processes(data);
-	sem_close(data->write_lock);
-	sem_close(data->forks);
-	sem_close(data->check_dead);
-	i = 0;
-	while (i < data->num_philos)
-	{
-		sem_close(data->philos[i].meal_lock);
-		sem_unlink("/meal_lock");
-		i++;
-	}
-	sem_unlink("/check_dead");
-	sem_unlink("/forks");
-	sem_unlink("/write_lock");
-	free(data->philos);
+	clean_all(data);
 	return (0);
 }
 

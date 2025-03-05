@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:52 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/05 08:01:51 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 09:51:00 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ int					take_the_fork(t_philosopher *philo);
 int					put_the_fork(t_philosopher *philo);
 int					help_main(t_data *data);
 int					help_routine(t_philosopher *philo);
+void				clean_all(t_data *data);
 void				kill_processes(t_data *data);
 
 #endif
