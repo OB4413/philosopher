@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:49:07 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/05 17:56:26 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 18:11:30 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,22 +45,13 @@ void	print_status(t_philosopher *philo, char *status)
 
 void	*help_routine(t_philosopher *philo)
 {
-	while (1 && usleep(100))
+	while (1)
 	{
 		if (get_time() - philo->last_meal_time >= philo->data->time_to_die)
 			break ;
 		print_status(philo, "is thinking");
-		if (philo->num_eat != philo->data->num_must_eat)
-		{
-			if (take_the_fork(philo) == 1)
-				return (NULL);
-			sem_wait(philo->data->meal_lock);
-			philo->last_meal_time = get_time();
-			sem_post(philo->data->meal_lock);
-			print_status(philo, "is eating");
-			philo->num_eat++;
-			ft_usleep(philo, philo->data->time_to_eat);
-		}
+		if (help_2routine(philo) == NULL)
+			return (NULL);
 		print_status(philo, "is sleeping");
 		sem_wait(philo->data->check_dead);
 		if (get_time() - philo->last_meal_time >= philo->data->time_to_die)
@@ -69,7 +60,9 @@ void	*help_routine(t_philosopher *philo)
 		ft_usleep(philo, philo->data->time_to_sleep);
 		if (philo->num_eat != philo->data->num_must_eat)
 			put_the_fork(philo);
+		usleep(100);
 	}
+	return (philo);
 }
 
 // function for philosopher routine
