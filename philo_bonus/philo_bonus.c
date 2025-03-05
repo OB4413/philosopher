@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/02 15:47:08 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 08:18:44 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ int	error(int ac, char **av, t_data *data)
 			if (data->num_philos > 200 || data->time_to_die <= 0
 				|| data->time_to_eat <= 0 || data->time_to_sleep <= 0)
 				return (printf("Error: some parameter is bad\n"), 1);
-			printf("%d %s\n", 0, "1 has taken a fork");
+			printf("%d %s\n", 0, "is thinking");
 			if (usleep(ft_atoi(av[2]) * 1000) == -1)
 				return (printf("usleep failed\n"), 1);
 			return (printf("%d %s\n", ft_atoi(av[2]), "1 died"), 1);
@@ -92,6 +92,9 @@ int	init_philo(t_data *data)
 		data->philos[i].id = i;
 		data->philos[i].num_eat = 0;
 		data->philos[i].last_meal_time = data->start_time;
+		data->philos[i].meal_lock = sem_open("/meal_lock", O_CREAT, 0644, 1);
+		if (data->philos[i].meal_lock == SEM_FAILED)
+			return (printf("sem_open failed\n"), 1);
 		data->philos[i].data = data;
 		i++;
 	}
@@ -109,7 +112,6 @@ void	kill_processes(t_data *data)
 			kill(data->philos[i].pid, SIGKILL);
 		i++;
 	}
-	kill(data->pid_monitor, SIGKILL);
 }
 
 // av ./program [number of philo] [time die] [time eat] [time sleep] [must eat]
@@ -137,11 +139,6 @@ int	main(int ac, char **av)
 		}
 		i++;
 	}
-	data.pid_monitor = fork();
-	if (data.pid_monitor == 0)
-		monitor_routine(&data);
-	else if (data.pid_monitor < 0)
-		return (printf("fork failed\n"), 1);
 	if (help_main(&data) == 1)
 		return (1);
 	return (0);
