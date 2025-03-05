@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:52 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/05 09:51:00 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 17:48:13 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@
 # include <stdlib.h>
 # include <string.h>
 # include <sys/time.h>
-# include <unistd.h>
 # include <sys/wait.h>
+# include <unistd.h>
 
 typedef struct s_philosopher
 {
@@ -30,7 +30,6 @@ typedef struct s_philosopher
 	pid_t			pid;
 	int				num_eat;
 	long int		last_meal_time;
-	sem_t			*meal_lock;
 	struct s_data	*data;
 }					t_philosopher;
 
@@ -45,6 +44,7 @@ typedef struct s_data
 	sem_t			*forks;
 	sem_t			*write_lock;
 	sem_t			*check_dead;
+	sem_t			*meal_lock;
 	t_philosopher	*philos;
 }					t_data;
 
@@ -58,7 +58,7 @@ int					ft_atoi(const char *str);
 int					take_the_fork(t_philosopher *philo);
 int					put_the_fork(t_philosopher *philo);
 int					help_main(t_data *data);
-int					help_routine(t_philosopher *philo);
+void				*help_routine(t_philosopher *philo);
 void				clean_all(t_data *data);
 void				kill_processes(t_data *data);
 

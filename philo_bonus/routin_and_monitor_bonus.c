@@ -6,14 +6,14 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:49:07 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/05 11:08:09 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 17:56:26 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
 
 // ft_usleep function for sleep in microsecond
-void	ft_usleep(t_philosopher *philo,long int duration)
+void	ft_usleep(t_philosopher *philo, long int duration)
 {
 	long int	start_time;
 
@@ -39,8 +39,37 @@ void	print_status(t_philosopher *philo, char *status)
 {
 	sem_wait(philo->data->write_lock);
 	printf("%ld %d %s\n", get_time() - philo->data->start_time, philo->id + 1,
-	status);
+		status);
 	sem_post(philo->data->write_lock);
+}
+
+void	*help_routine(t_philosopher *philo)
+{
+	while (1 && usleep(100))
+	{
+		if (get_time() - philo->last_meal_time >= philo->data->time_to_die)
+			break ;
+		print_status(philo, "is thinking");
+		if (philo->num_eat != philo->data->num_must_eat)
+		{
+			if (take_the_fork(philo) == 1)
+				return (NULL);
+			sem_wait(philo->data->meal_lock);
+			philo->last_meal_time = get_time();
+			sem_post(philo->data->meal_lock);
+			print_status(philo, "is eating");
+			philo->num_eat++;
+			ft_usleep(philo, philo->data->time_to_eat);
+		}
+		print_status(philo, "is sleeping");
+		sem_wait(philo->data->check_dead);
+		if (get_time() - philo->last_meal_time >= philo->data->time_to_die)
+			break ;
+		sem_post(philo->data->check_dead);
+		ft_usleep(philo, philo->data->time_to_sleep);
+		if (philo->num_eat != philo->data->num_must_eat)
+			put_the_fork(philo);
+	}
 }
 
 // function for philosopher routine
@@ -49,31 +78,11 @@ void	*philosopher_routine(void *phil)
 	t_philosopher	*philo;
 
 	philo = (t_philosopher *)phil;
-	while (1)
+	if (help_routine(philo) == NULL)
 	{
-		if (get_time() - philo->last_meal_time > philo->data->time_to_die)
-			break;
-		print_status(philo, "is thinking");
-		if (philo->num_eat != philo->data->num_must_eat)
-		{
-			if (take_the_fork(philo) == 1)
-				return (NULL);
-			sem_wait(philo->meal_lock);
-			philo->last_meal_time = get_time();
-			sem_post(philo->meal_lock);
-			print_status(philo, "is eating");
-			philo->num_eat++;
-			ft_usleep(philo, philo->data->time_to_eat);
-		}
-		print_status(philo, "is sleeping");
-		sem_wait(philo->data->check_dead);
-		if (get_time() - philo->last_meal_time > philo->data->time_to_die)
-			break;
-		sem_post(philo->data->check_dead);
-		ft_usleep(philo, philo->data->time_to_sleep);
-		if (philo->num_eat != philo->data->num_must_eat)
-			put_the_fork(philo);
-		usleep(200);
+		kill_processes(philo->data);
+		clean_all(philo->data);
+		exit(0);
 	}
 	sem_post(philo->data->check_dead);
 	print_status(philo, "is died");

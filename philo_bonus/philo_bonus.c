@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/05 09:52:03 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 17:36:09 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,26 +92,10 @@ int	init_philo(t_data *data)
 		data->philos[i].id = i;
 		data->philos[i].num_eat = 0;
 		data->philos[i].last_meal_time = data->start_time;
-		data->philos[i].meal_lock = sem_open("/meal_lock", O_CREAT, 0644, 1);
-		if (data->philos[i].meal_lock == SEM_FAILED)
-			return (printf("sem_open failed\n"), 1);
 		data->philos[i].data = data;
 		i++;
 	}
 	return (0);
-}
-
-void	kill_processes(t_data *data)
-{
-	int	i;
-
-	i = 0;
-	while (i < data->num_philos)
-	{
-		if (data->philos[i].pid > 0)
-			kill(data->philos[i].pid, SIGKILL);
-		i++;
-	}
 }
 
 // av ./program [number of philo] [time die] [time eat] [time sleep] [must eat]
@@ -135,8 +119,7 @@ int	main(int ac, char **av)
 		else if (data.philos[i].pid < 0)
 		{
 			kill_processes(&data);
-			clean_all(&data);
-			return (printf("fork failed\n"), 1);
+			return (clean_all(&data), printf("fork failed\n"), 1);
 		}
 		i++;
 	}

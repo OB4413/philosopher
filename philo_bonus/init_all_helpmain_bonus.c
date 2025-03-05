@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 17:43:59 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/05 10:46:45 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/05 17:34:04 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,38 +14,30 @@
 
 void	clean_all(t_data *data)
 {
-	int i;
-
 	sem_close(data->write_lock);
 	sem_close(data->forks);
 	sem_close(data->check_dead);
-	i = 0;
-	while (i < data->num_philos)
-	{
-		sem_close(data->philos[i].meal_lock);
-		sem_unlink("/meal_lock");
-		i++;
-	}
+	sem_close(data->meal_lock);
 	sem_unlink("/check_dead");
 	sem_unlink("/forks");
 	sem_unlink("/write_lock");
+	sem_unlink("/meal_lock");
 	free(data->philos);
 }
 
 int	help_main(t_data *data)
 {
-	int	i;
-
-	i = 0;
+	int		i;
 	pid_t	pid;
 
+	i = 0;
 	pid = waitpid(-1, &i, 0);
 	while (pid > 0)
 	{
 		if (WIFEXITED(i) || WIFSIGNALED(i))
 		{
 			pid = waitpid(-1, &i, 0);
-			continue;
+			continue ;
 		}
 	}
 	while (wait(NULL) > 0)
@@ -58,9 +50,15 @@ int	help_main(t_data *data)
 // function for allocated memory
 void	*ft_allocated(t_data *data)
 {
-	data->philos = (t_philosopher *)malloc(sizeof(t_philosopher) * data->num_philos);
+	data->philos = (t_philosopher *)malloc(sizeof(t_philosopher)
+			* data->num_philos);
 	if (data->philos == NULL)
 		return (printf("malloc failed\n"), NULL);
+	sem_unlink("/forks");
+	sem_unlink("/write_lock");
+	sem_unlink("/check_dead");
+	sem_unlink("/meal_lock");
+	data->meal_lock = sem_open("/meal_lock", O_CREAT, 0644, 1);
 	data->forks = sem_open("/forks", O_CREAT, 0644, data->num_philos);
 	data->write_lock = sem_open("/write_lock", O_CREAT, 0644, 1);
 	data->check_dead = sem_open("/check_dead", O_CREAT, 0644, 1);
