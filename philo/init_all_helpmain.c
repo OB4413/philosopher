@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 17:43:59 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/07 14:20:22 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/07 14:33:16 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,21 +38,21 @@ int	help_main(t_data *data)
 }
 
 // function for allocated memory
-void	*ft_allocated(t_data *data)
+int	ft_allocated(t_data *data)
 {
 	data->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t)
 			* data->num_philos);
 	if (!data->forks)
-		return (NULL);
+		return (1);
 	data->philos = (t_philosopher *)malloc(sizeof(t_philosopher)
 			* data->num_philos);
 	if (!data->philos)
 	{
 		free(data->forks);
 		data->forks = NULL;
-		return (NULL);
+		return (1);
 	}
-	return ("data");
+	return (0);
 }
 
 int	help_init(t_data *data)
@@ -60,7 +60,7 @@ int	help_init(t_data *data)
 	int	i;
 
 	i = 0;
-	if (ft_allocated(data) == NULL)
+	if (ft_allocated(data) == 1)
 		return (1);
 	while (i < data->num_philos)
 	{
@@ -95,12 +95,10 @@ int	init_the_data(t_data *data, char **av, int ac)
 		|| data->time_to_die <= 0 || data->time_to_eat <= 0
 		|| data->time_to_sleep <= 0)
 		return (printf("Error: some parameter is bad\n"), 1);
-	if (data->start_time == -1)
-		return (1);
 	if (ac == 6)
 	{
 		data->num_must_eat = ft_atoi(av[5]);
-		if (data->num_must_eat < 0)
+		if (data->num_must_eat <= 0)
 			return (printf("Error: some parameter is bad\n"), 1);
 	}
 	if (help_init(data) == 1)
