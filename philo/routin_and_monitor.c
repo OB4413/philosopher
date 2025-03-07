@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:49:07 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/07 17:09:38 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/07 17:35:33 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void	ft_usleep(t_philosopher *philo, long int duration)
 	while ((get_time() - start_time) < duration)
 	{
 		if (check_death(philo))
-			break ;
+			return ;
 		usleep(50);
 	}
 }
@@ -95,7 +95,7 @@ void	*monitor_routine(void *data)
 		pthread_mutex_unlock(&philo->death_lock);
 		if (help_monitor(philo) == 1)
 			return (NULL);
-		usleep(10);
+		usleep(100);
 	}
 	return (NULL);
 }

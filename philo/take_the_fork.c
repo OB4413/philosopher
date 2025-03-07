@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 09:20:44 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/07 17:09:19 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/07 17:36:28 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int	help_monitor(t_data *philo)
 	while (i < philo->num_philos)
 	{
 		pthread_mutex_lock(&philo->meal_lock);
-		if (get_time() - philo->philos[i].last_meal_time > philo->time_to_die)
+		if ((get_time() - philo->philos[i].last_meal_time) >= philo->time_to_die)
 		{
 			print_status(&philo->philos[i], "is died");
 			pthread_mutex_lock(&philo->death_lock);
@@ -55,15 +55,13 @@ int	take_the_fork(t_philosopher *philo)
 	right_fork = philo->id % philo->data->num_philos;
 	if ((philo->id + 1) % 2 == 0)
 	{
-		if (check_death(philo))
-			return (1);
 		pthread_mutex_lock(&philo->data->forks[left_fork]);
 		pthread_mutex_lock(&philo->data->forks[right_fork]);
 		print_status(philo, "has taken a forks");
 	}
 	else
 	{
-		usleep(100);
+		usleep(1000);
 		pthread_mutex_lock(&philo->data->forks[right_fork]);
 		pthread_mutex_lock(&philo->data->forks[left_fork]);
 		print_status(philo, "has taken a forks");
