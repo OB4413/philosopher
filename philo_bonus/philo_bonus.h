@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:52 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/06 13:26:53 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/07 23:07:21 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <fcntl.h>
 # include <limits.h>
+# include <pthread.h>
 # include <semaphore.h>
 # include <signal.h>
 # include <stdio.h>
@@ -41,6 +42,7 @@ typedef struct s_data
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				num_must_eat;
+	int				sameone_dead;
 	sem_t			*forks;
 	sem_t			*write_lock;
 	sem_t			*check_dead;
@@ -49,7 +51,7 @@ typedef struct s_data
 }					t_data;
 
 void				print_status(t_philosopher *philo, char *status);
-void				*philosopher_routine(void *phil);
+void				philosopher_routine(void *phil);
 void				*monitor_routine(void *data);
 long int			get_time(void);
 void				ft_usleep(t_philosopher *philo, long int duration);
@@ -58,9 +60,10 @@ int					ft_atoi(const char *str);
 int					take_the_fork(t_philosopher *philo);
 int					put_the_fork(t_philosopher *philo);
 int					help_main(t_data *data);
-void				*help_routine(t_philosopher *philo);
+void				help_routine(t_philosopher *philo);
 void				clean_all(t_data *data);
 void				kill_processes(t_data *data);
-void				*help_2routine(t_philosopher *philo);
+void				help_2routine(t_philosopher *philo);
+int					cheak_if_dead(t_philosopher *philo);
 
 #endif

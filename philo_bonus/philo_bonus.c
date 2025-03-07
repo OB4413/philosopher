@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/06 13:24:49 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/07 22:25:50 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,7 @@ long int	get_time(void)
 	struct timeval	time;
 	long int		res;
 
-	if (gettimeofday(&time, NULL) == -1)
-		return (printf("gettimeofday failed\n"), -1);
+	gettimeofday(&time, NULL);
 	res = (time.tv_sec * 1000) + (time.tv_usec / 1000);
 	return (res);
 }
@@ -109,8 +108,7 @@ int	main(int ac, char **av)
 		return (1);
 	if (init_the_data(&data, av, ac) == 1)
 		return (1);
-	if (init_philo(&data) == 1)
-		return (1);
+	init_philo(&data);
 	while (i < data.num_philos)
 	{
 		data.philos[i].pid = fork();

@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 17:43:59 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/05 17:34:04 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/07 23:47:10 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,14 @@
 
 void	clean_all(t_data *data)
 {
-	sem_close(data->write_lock);
-	sem_close(data->forks);
-	sem_close(data->check_dead);
-	sem_close(data->meal_lock);
+	if (data->write_lock)
+		sem_close(data->write_lock);
+	if (data->forks)
+		sem_close(data->forks);
+	if (data->check_dead)
+		sem_close(data->check_dead);
+	if (data->meal_lock)
+		sem_close(data->meal_lock);
 	sem_unlink("/check_dead");
 	sem_unlink("/forks");
 	sem_unlink("/write_lock");
@@ -80,8 +84,6 @@ int	init_the_data(t_data *data, char **av, int ac)
 		|| data->time_to_die <= 0 || data->time_to_eat <= 0
 		|| data->time_to_sleep <= 0)
 		return (printf("Error: some parameter is bad\n"), 1);
-	if (data->start_time == -1)
-		return (1);
 	if (ac == 6)
 	{
 		data->num_must_eat = ft_atoi(av[5]);
