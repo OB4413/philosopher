@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo.c                                            :+:      :+:    :+:   */
+/*   philo_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/07 16:48:18 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/06 13:24:49 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
 // ft_atoi function for parameter to integer
 int	ft_atoi(const char *str)
@@ -32,7 +32,8 @@ int	ft_atoi(const char *str)
 		if (nbr > INT_MAX)
 			return (-1);
 	}
-	while (str[i] == ' ' || str[i] == '\t')
+	while (str[i] == ' ' || str[i] == '\t' || str[i] == '\n' || str[i] == '\v'
+		|| str[i] == '\f' || str[i] == '\r')
 		i++;
 	if (str[i] && !(str[i] >= '0' && str[i] <= '9'))
 		return (-1);
@@ -45,7 +46,8 @@ long int	get_time(void)
 	struct timeval	time;
 	long int		res;
 
-	gettimeofday(&time, NULL);
+	if (gettimeofday(&time, NULL) == -1)
+		return (printf("gettimeofday failed\n"), -1);
 	res = (time.tv_sec * 1000) + (time.tv_usec / 1000);
 	return (res);
 }
@@ -54,17 +56,18 @@ long int	get_time(void)
 int	error(int ac, char **av, t_data *data)
 {
 	if (ac < 5 || ac > 6)
-		return (printf("./philo num_philos t_die t_eat t_sleep [must_eat]\n"),
-			1);
+	{
+		printf("./philo num_philos time_die time_eat time_sleep [must_eat]\n");
+		return (1);
+	}
 	if (ft_atoi(av[1]) < 2)
 	{
 		data->num_philos = ft_atoi(av[1]);
 		data->time_to_die = ft_atoi(av[2]);
 		data->time_to_eat = ft_atoi(av[3]);
 		data->time_to_sleep = ft_atoi(av[4]);
-		if (data->num_philos > 200 || data->num_philos <= 0
-			|| data->time_to_die <= 0 || data->time_to_eat <= 0
-			|| data->time_to_sleep <= 0)
+		if (data->num_philos > 200 || data->time_to_die <= 0
+			|| data->time_to_eat <= 0 || data->time_to_sleep <= 0)
 			return (printf("Error: some parameter is bad\n"), 1);
 		if (ft_atoi(av[1]) == 1)
 		{
@@ -106,16 +109,20 @@ int	main(int ac, char **av)
 		return (1);
 	if (init_the_data(&data, av, ac) == 1)
 		return (1);
-	init_philo(&data);
-	pthread_mutex_init(&data.write_lock, NULL);
-	pthread_mutex_init(&data.death_lock, NULL);
+	if (init_philo(&data) == 1)
+		return (1);
 	while (i < data.num_philos)
 	{
-		pthread_create(&data.philo[i], NULL, philosopher_routine,
-			&data.philos[i]);
+		data.philos[i].pid = fork();
+		if (data.philos[i].pid == 0)
+			philosopher_routine(&data.philos[i]);
+		else if (data.philos[i].pid < 0)
+		{
+			kill_processes(&data);
+			return (clean_all(&data), printf("fork failed\n"), 1);
+		}
 		i++;
 	}
-	pthread_create(&data.monitor, NULL, monitor_routine, &data);
 	if (help_main(&data) == 1)
 		return (1);
 	return (0);

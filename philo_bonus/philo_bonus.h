@@ -1,31 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo.h                                            :+:      :+:    :+:   */
+/*   philo_bonus.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:52 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/06 12:48:29 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/06 13:26:53 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_H
-# define PHILO_H
+#ifndef PHILO_BONUS_H
+# define PHILO_BONUS_H
 
+# include <fcntl.h>
 # include <limits.h>
-# include <pthread.h>
+# include <semaphore.h>
+# include <signal.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <sys/time.h>
+# include <sys/wait.h>
 # include <unistd.h>
-
-# define MAX_PHILOS 200
 
 typedef struct s_philosopher
 {
 	int				id;
+	pid_t			pid;
 	int				num_eat;
 	long int		last_meal_time;
 	struct s_data	*data;
@@ -39,13 +41,10 @@ typedef struct s_data
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				num_must_eat;
-	int				someone_died;
-	pthread_t		*philo;
-	pthread_t		monitor;
-	pthread_mutex_t	*forks;
-	pthread_mutex_t	write_lock;
-	pthread_mutex_t	death_lock;
-	pthread_mutex_t	meal_lock;
+	sem_t			*forks;
+	sem_t			*write_lock;
+	sem_t			*check_dead;
+	sem_t			*meal_lock;
 	t_philosopher	*philos;
 }					t_data;
 
@@ -58,9 +57,10 @@ int					init_the_data(t_data *data, char **av, int ac);
 int					ft_atoi(const char *str);
 int					take_the_fork(t_philosopher *philo);
 int					put_the_fork(t_philosopher *philo);
-int					check_death(t_philosopher *phil);
 int					help_main(t_data *data);
-int					help_routine(t_philosopher *philo);
-int					help_monitor(t_data *philo);
+void				*help_routine(t_philosopher *philo);
+void				clean_all(t_data *data);
+void				kill_processes(t_data *data);
+void				*help_2routine(t_philosopher *philo);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 17:43:59 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/07 14:33:16 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/07 16:59:16 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,17 @@ int	help_main(t_data *data)
 	i = 0;
 	while (i < data->num_philos)
 	{
-		pthread_join(data->philo[i], NULL);
+		if (pthread_join(data->philo[i], NULL) != 0)
+			return (1);
 		i++;
 	}
-	pthread_join(data->monitor, NULL);
+	if (pthread_join(data->monitor, NULL) != 0)
+		return (1);
 	i = 0;
 	while (i < data->num_philos)
 	{
-		pthread_mutex_destroy(&data->forks[i]);
+		if (pthread_mutex_destroy(&data->forks[i]) != 0)
+			return (1);
 		i++;
 	}
 	pthread_mutex_destroy(&data->write_lock);
@@ -81,9 +84,6 @@ int	help_init(t_data *data)
 // initialize data
 int	init_the_data(t_data *data, char **av, int ac)
 {
-	int	i;
-
-	i = 0;
 	data->num_philos = ft_atoi(av[1]);
 	data->time_to_die = ft_atoi(av[2]);
 	data->time_to_eat = ft_atoi(av[3]);
@@ -94,12 +94,12 @@ int	init_the_data(t_data *data, char **av, int ac)
 	if (data->num_philos <= 0 || data->num_philos > 200
 		|| data->time_to_die <= 0 || data->time_to_eat <= 0
 		|| data->time_to_sleep <= 0)
-		return (printf("Error: some parameter is bad\n"), 1);
+		return (printf("ERROR : same bad argument\n"), 1);
 	if (ac == 6)
 	{
 		data->num_must_eat = ft_atoi(av[5]);
 		if (data->num_must_eat <= 0)
-			return (printf("Error: some parameter is bad\n"), 1);
+			return (printf("ERROR : same bad argument\n"), 1);
 	}
 	if (help_init(data) == 1)
 		return (1);
