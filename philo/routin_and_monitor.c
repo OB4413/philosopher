@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:49:07 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/05 18:00:49 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/07 14:20:01 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,12 @@ void	ft_usleep(t_philosopher *philo, long int duration)
 // print_status function for print status of philosopher
 void	print_status(t_philosopher *philo, char *status)
 {
-	if (check_death(philo) == 1)
-		return ;
 	pthread_mutex_lock(&philo->data->write_lock);
+	if (check_death(philo) == 1)
+	{
+		pthread_mutex_unlock(&philo->data->write_lock);
+	return ;
+	}
 	printf("%ld %d %s\n", get_time() - philo->data->start_time, philo->id + 1,
 		status);
 	pthread_mutex_unlock(&philo->data->write_lock);
@@ -63,11 +66,9 @@ void	*philosopher_routine(void *phil)
 		{
 			if (take_the_fork(philo) == 1)
 				return (NULL);
-			if (pthread_mutex_lock(&philo->data->meal_lock) != 0)
-				return (printf("pthread_mutex_lock failed\n"), NULL);
+			pthread_mutex_lock(&philo->data->meal_lock);
 			philo->last_meal_time = get_time();
-			if (pthread_mutex_unlock(&philo->data->meal_lock) != 0)
-				return (printf("pthread_mutex_unlock failed\n"), NULL);
+			pthread_mutex_unlock(&philo->data->meal_lock);
 			print_status(philo, "is eating");
 			philo->num_eat++;
 			ft_usleep(philo, philo->data->time_to_eat);
@@ -86,16 +87,13 @@ void	*monitor_routine(void *data)
 	philo = (t_data *)data;
 	while (1)
 	{
-		if (pthread_mutex_lock(&philo->death_lock) != 0)
-			return (printf("pthread_mutex_lock failed\n"), NULL);
+		pthread_mutex_lock(&philo->death_lock);
 		if (philo->someone_died)
 		{
-			if (pthread_mutex_unlock(&philo->death_lock) != 0)
-				return (printf("pthread_mutex_unlock failed\n"), NULL);
+			pthread_mutex_unlock(&philo->death_lock);
 			return (NULL);
 		}
-		if (pthread_mutex_unlock(&philo->death_lock) != 0)
-			return (printf("pthread_mutex_unlock failed\n"), NULL);
+		pthread_mutex_unlock(&philo->death_lock);
 		if (help_monitor(philo) == 1)
 			return (NULL);
 		usleep(100);

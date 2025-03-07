@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/05 18:01:17 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/07 14:20:11 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,19 +55,19 @@ long int	get_time(void)
 // for < 2 philosophers and arguments
 int	error(int ac, char **av, t_data *data)
 {
-	data->num_philos = ft_atoi(av[1]);
-	data->time_to_die = ft_atoi(av[2]);
-	data->time_to_eat = ft_atoi(av[3]);
-	data->time_to_sleep = ft_atoi(av[4]);
-	if (data->num_philos > 200 || data->num_philos <= 0
-		|| data->time_to_die <= 0 || data->time_to_eat <= 0
-		|| data->time_to_sleep <= 0)
-		return (printf("Error: some parameter is bad\n"), 1);
 	if (ac < 5 || ac > 6)
 		return (printf("./philo num_philos t_die t_eat t_sleep [must_eat]\n"),
 			1);
 	if (ft_atoi(av[1]) < 2)
 	{
+		data->num_philos = ft_atoi(av[1]);
+		data->time_to_die = ft_atoi(av[2]);
+		data->time_to_eat = ft_atoi(av[3]);
+		data->time_to_sleep = ft_atoi(av[4]);
+		if (data->num_philos > 200 || data->num_philos <= 0
+			|| data->time_to_die <= 0 || data->time_to_eat <= 0
+			|| data->time_to_sleep <= 0)
+			return (printf("Error: some parameter is bad\n"), 1);
 		if (ft_atoi(av[1]) == 1)
 		{
 			printf("%d %s\n", 0, "is thinking");
@@ -110,18 +110,15 @@ int	main(int ac, char **av)
 		return (1);
 	if (init_philo(&data) == 1)
 		return (1);
-	if (pthread_mutex_init(&data.write_lock, NULL) != 0
-		|| pthread_mutex_init(&data.death_lock, NULL) != 0)
-		return (printf("pthread mutex init failed\n"), 1);
+	pthread_mutex_init(&data.write_lock, NULL);
+	pthread_mutex_init(&data.death_lock, NULL);
 	while (i < data.num_philos)
 	{
-		if (pthread_create(&data.philo[i], NULL, philosopher_routine,
-				&data.philos[i]) != 0)
-			return (printf("pthread_creat failed\n"), 1);
+		pthread_create(&data.philo[i], NULL, philosopher_routine,
+			&data.philos[i]);
 		i++;
 	}
-	if (pthread_create(&data.monitor, NULL, monitor_routine, &data) != 0)
-		return (printf("pthread_creat failed\n"), 1);
+	pthread_create(&data.monitor, NULL, monitor_routine, &data);
 	if (help_main(&data) == 1)
 		return (1);
 	return (0);

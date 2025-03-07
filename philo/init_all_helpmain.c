@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 17:43:59 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/05 18:05:36 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/07 14:20:22 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,23 +19,19 @@ int	help_main(t_data *data)
 	i = 0;
 	while (i < data->num_philos)
 	{
-		if (pthread_join(data->philo[i], NULL) != 0)
-			return (printf("pthread_join failed\n"), 1);
+		pthread_join(data->philo[i], NULL);
 		i++;
 	}
-	if (pthread_join(data->monitor, NULL) != 0)
-		return (printf("pthread_join failed\n"), 1);
+	pthread_join(data->monitor, NULL);
 	i = 0;
 	while (i < data->num_philos)
 	{
-		if (pthread_mutex_destroy(&data->forks[i]) != 0)
-			return (printf("pthread_mutex_destroy failed\n"), 1);
+		pthread_mutex_destroy(&data->forks[i]);
 		i++;
 	}
-	if (pthread_mutex_destroy(&data->write_lock) != 0
-		|| pthread_mutex_destroy(&data->death_lock) != 0
-		|| pthread_mutex_destroy(&data->meal_lock) != 0)
-		return (printf("pthread_mutex_destroy failed\n"), 1);
+	pthread_mutex_destroy(&data->write_lock);
+	pthread_mutex_destroy(&data->death_lock);
+	pthread_mutex_destroy(&data->meal_lock);
 	free(data->forks);
 	free(data->philos);
 	return (free(data->philo), 0);
@@ -65,21 +61,19 @@ int	help_init(t_data *data)
 
 	i = 0;
 	if (ft_allocated(data) == NULL)
-		return (printf("filed to allocate memory\n"), 1);
+		return (1);
 	while (i < data->num_philos)
 	{
-		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
-			return (printf("pthread mutex init failed\n"), 1);
+		pthread_mutex_init(&data->forks[i], NULL);
 		i++;
 	}
-	if (pthread_mutex_init(&data->meal_lock, NULL) != 0)
-		return (printf("pthread mutex init failed\n"), 1);
+	pthread_mutex_init(&data->meal_lock, NULL);
 	data->philo = malloc(sizeof(pthread_t) * data->num_philos);
 	if (!data->philo)
 	{
 		free(data->forks);
 		free(data->philos);
-		return (printf("failed to allocate memory\n"), 1);
+		return (1);
 	}
 	return (0);
 }
