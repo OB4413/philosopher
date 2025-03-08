@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:49:07 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/08 11:35:26 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/08 13:35:39 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,11 @@ void	help_routine(t_philosopher *philo)
 		put_the_fork(philo);
 		print_status(philo, "is sleeping");
 		ft_usleep(philo, philo->data->time_to_sleep);
+		if (philo->num_eat == philo->data->num_must_eat)
+		{
+			philo->id = -1;
+			return ;
+		}
 		if (cheak_if_dead(philo) == 0)
 			return ;
 	}
@@ -62,7 +67,7 @@ void	*monitor_philo(void *phil)
 	t_philosopher	*philo;
 
 	philo = (t_philosopher *)phil;
-	while (1)
+	while (1 && philo->id != -1)
 	{
 		sem_wait(philo->data->check_dead);
 		if (philo->data->sameone_dead->__align == 0)
