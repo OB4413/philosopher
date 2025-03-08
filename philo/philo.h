@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:52 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/06 12:48:29 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/08 13:45:01 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ typedef struct s_philosopher
 
 typedef struct s_data
 {
+	int				k;
 	int				num_philos;
 	long int		start_time;
 	int				time_to_die;

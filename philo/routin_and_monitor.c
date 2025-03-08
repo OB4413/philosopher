@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 15:49:07 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/07 17:35:33 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/08 14:17:30 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void	*philosopher_routine(void *phil)
 	t_philosopher	*philo;
 
 	philo = (t_philosopher *)phil;
-	while (1)
+	while (1 && philo->num_eat != philo->data->num_must_eat)
 	{
 		if (check_death(philo))
 			return (NULL);
@@ -75,6 +75,8 @@ void	*philosopher_routine(void *phil)
 		if (help_routine(philo) == 1)
 			return (NULL);
 	}
+	if (philo->num_eat == philo->data->num_must_eat)
+		philo->id = -1;
 	return (NULL);
 }
 
@@ -93,8 +95,9 @@ void	*monitor_routine(void *data)
 			return (NULL);
 		}
 		pthread_mutex_unlock(&philo->death_lock);
-		if (help_monitor(philo) == 1)
+		if (help_monitor(philo) == 1 || philo->k != 11)
 			return (NULL);
+		philo->k = 0;
 		usleep(100);
 	}
 	return (NULL);

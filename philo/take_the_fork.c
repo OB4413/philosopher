@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 09:20:44 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/08 11:39:34 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/08 14:16:24 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,18 +29,22 @@ int	help_monitor(t_data *philo)
 	i = 0;
 	while (i < philo->num_philos)
 	{
-		pthread_mutex_lock(&philo->meal_lock);
-		if ((get_time()
-				- philo->philos[i].last_meal_time) >= philo->time_to_die)
+		if (philo->philos[i].id != -1)
 		{
-			print_status(&philo->philos[i], "is died");
-			pthread_mutex_lock(&philo->death_lock);
-			philo->someone_died = 1;
-			pthread_mutex_unlock(&philo->death_lock);
+			pthread_mutex_lock(&philo->meal_lock);
+			if ((get_time()
+					- philo->philos[i].last_meal_time) >= philo->time_to_die)
+			{
+				print_status(&philo->philos[i], "is died");
+				pthread_mutex_lock(&philo->death_lock);
+				philo->someone_died = 1;
+				pthread_mutex_unlock(&philo->death_lock);
+				pthread_mutex_unlock(&philo->meal_lock);
+				return (1);
+			}
 			pthread_mutex_unlock(&philo->meal_lock);
-			return (1);
+			philo->k = 11;
 		}
-		pthread_mutex_unlock(&philo->meal_lock);
 		i++;
 	}
 	return (0);

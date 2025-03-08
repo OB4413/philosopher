@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 17:43:59 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/07 16:59:16 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/08 13:45:13 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ int	init_the_data(t_data *data, char **av, int ac)
 	data->time_to_eat = ft_atoi(av[3]);
 	data->time_to_sleep = ft_atoi(av[4]);
 	data->num_must_eat = INT_MAX;
+	data->k = 0;
 	data->someone_died = 0;
 	data->start_time = get_time();
 	if (data->num_philos <= 0 || data->num_philos > 200
