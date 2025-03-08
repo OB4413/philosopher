@@ -1,4 +1,4 @@
-NAME = philo
+NAME = philo_bonus
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror #-fsanitize=thread
@@ -6,7 +6,7 @@ CFLAGS = -Wall -Wextra -Werror #-fsanitize=thread
 SURCE = philo_bonus.c routin_and_monitor_bonus.c init_all_helpmain_bonus.c take_the_fork_bonus.c
 OBJ = $(SURCE:.c=.o)
 
-all: $(NAME) clean
+all: $(NAME)
 
 $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)

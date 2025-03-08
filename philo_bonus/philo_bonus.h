@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:52 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/07 23:07:21 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/08 10:17:15 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ typedef struct s_data
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				num_must_eat;
-	int				sameone_dead;
+	sem_t			*sameone_dead;
 	sem_t			*forks;
 	sem_t			*write_lock;
 	sem_t			*check_dead;

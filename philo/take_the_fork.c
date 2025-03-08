@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 09:20:44 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/07 17:36:28 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/08 11:39:34 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ int	help_monitor(t_data *philo)
 	while (i < philo->num_philos)
 	{
 		pthread_mutex_lock(&philo->meal_lock);
-		if ((get_time() - philo->philos[i].last_meal_time) >= philo->time_to_die)
+		if ((get_time()
+				- philo->philos[i].last_meal_time) >= philo->time_to_die)
 		{
 			print_status(&philo->philos[i], "is died");
 			pthread_mutex_lock(&philo->death_lock);

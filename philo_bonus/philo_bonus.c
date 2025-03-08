@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:17:16 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/07 22:25:50 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/08 11:05:14 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,13 +112,13 @@ int	main(int ac, char **av)
 	while (i < data.num_philos)
 	{
 		data.philos[i].pid = fork();
-		if (data.philos[i].pid == 0)
-			philosopher_routine(&data.philos[i]);
-		else if (data.philos[i].pid < 0)
+		if (data.philos[i].pid < 0)
 		{
 			kill_processes(&data);
 			return (clean_all(&data), printf("fork failed\n"), 1);
 		}
+		else if (data.philos[i].pid == 0)
+			philosopher_routine(&data.philos[i]);
 		i++;
 	}
 	if (help_main(&data) == 1)

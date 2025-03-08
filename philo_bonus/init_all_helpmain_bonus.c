@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 17:43:59 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/07 23:47:10 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/08 11:21:00 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,9 @@ void	clean_all(t_data *data)
 		sem_close(data->check_dead);
 	if (data->meal_lock)
 		sem_close(data->meal_lock);
+	if (data->sameone_dead)
+		sem_close(data->sameone_dead);
+	sem_unlink("/sameone_dead");
 	sem_unlink("/check_dead");
 	sem_unlink("/forks");
 	sem_unlink("/write_lock");
@@ -32,22 +35,14 @@ void	clean_all(t_data *data)
 int	help_main(t_data *data)
 {
 	int		i;
-	pid_t	pid;
+	int		stract;
 
 	i = 0;
-	pid = waitpid(-1, &i, 0);
-	while (pid > 0)
+	while (i < data->num_philos)
 	{
-		if (WIFEXITED(i) || WIFSIGNALED(i))
-		{
-			pid = waitpid(-1, &i, 0);
-			continue ;
-		}
+		waitpid(data->philos[i].pid, &stract, 0);
+		i++;
 	}
-	while (wait(NULL) > 0)
-		;
-	kill_processes(data);
-	clean_all(data);
 	return (0);
 }
 
@@ -62,11 +57,14 @@ void	*ft_allocated(t_data *data)
 	sem_unlink("/write_lock");
 	sem_unlink("/check_dead");
 	sem_unlink("/meal_lock");
+	sem_unlink("/sameone_dead");
+	data->sameone_dead = sem_open("/sameone_dead", O_CREAT, 0644, 1);
 	data->meal_lock = sem_open("/meal_lock", O_CREAT, 0644, 1);
 	data->forks = sem_open("/forks", O_CREAT, 0644, data->num_philos);
 	data->write_lock = sem_open("/write_lock", O_CREAT, 0644, 1);
 	data->check_dead = sem_open("/check_dead", O_CREAT, 0644, 1);
-	if (data->forks == SEM_FAILED || data->write_lock == SEM_FAILED)
+	if (data->forks == SEM_FAILED || data->write_lock == SEM_FAILED
+		|| data->check_dead == SEM_FAILED || data->meal_lock == SEM_FAILED)
 		return (printf("sem_open failed\n"), NULL);
 	return (data);
 }

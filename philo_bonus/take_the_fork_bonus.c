@@ -6,7 +6,7 @@
 /*   By: obarais <obarais@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 09:20:44 by obarais           #+#    #+#             */
-/*   Updated: 2025/03/07 23:51:02 by obarais          ###   ########.fr       */
+/*   Updated: 2025/03/08 11:32:07 by obarais          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	take_the_fork(t_philosopher *philo)
 {
-	if ((philo->id + 1) % 2 == 0)
+	if ((philo->id + 1) % 2 != 0)
 		usleep(1000);
 	sem_wait(philo->data->forks);
 	sem_wait(philo->data->forks);
@@ -57,12 +57,12 @@ void	help_2routine(t_philosopher *philo)
 	return ;
 }
 
-int		cheak_if_dead(t_philosopher *philo)
+int	cheak_if_dead(t_philosopher *philo)
 {
-	int re;
+	int	re;
 
 	sem_wait(philo->data->check_dead);
-	re = philo->data->sameone_dead;
+	re = philo->data->sameone_dead->__align;
 	sem_post(philo->data->check_dead);
 	return (re);
 }

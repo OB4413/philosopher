@@ -6,7 +6,7 @@ CFLAGS = -Wall -Wextra -Werror #-fsanitize=thread
 SURCE = philo.c routin_and_monitor.c init_all_helpmain.c take_the_fork.c
 OBJ = $(SURCE:.c=.o)
 
-all: $(NAME) clean
+all: $(NAME)
 
 $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
